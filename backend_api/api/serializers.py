@@ -19,6 +19,12 @@ class UsersSerializer(serializers.ModelSerializer):
         update_user.set_password(validated_data['password'])
         update_user.save()
         return update_user
+    def to_representation(self, instance):
+        return {
+            'idUser': instance.idUser,
+            'username': instance.username,
+        }
+    
         
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
