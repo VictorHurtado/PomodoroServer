@@ -96,7 +96,7 @@ DATABASES = {
         'USER': 'postgres',
         'PASSWORD': '1234',
         'HOST': '127.0.0.1',
-        'PORT': '5433',
+        'PORT': '5432',
     }
 }
 SWAGGER_SETTINGS = {
