@@ -52,3 +52,18 @@ def user_detail_api_view(request, pk):
     return Response({"message": "No se ha encontrado ningun usuario"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['POST'])
+def user_detail_username_api_view(request):
+    print(request.data)
+    # QuerySet
+    if ('username' in request.data):
+        user = Users.objects.filter(username=request.data["username"]).first()
+        # validation
+        if user:
+            if request.method == 'POST':
+                user_serializer = UsersSerializer(user)
+                return Response( user_serializer.data, status=status.HTTP_200_OK)
+            # validation
+        
+
+    return Response({"message": "No se ha encontrado ningun usuario"}, status=status.HTTP_400_BAD_REQUEST)
