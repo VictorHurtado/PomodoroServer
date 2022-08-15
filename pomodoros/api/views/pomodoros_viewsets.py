@@ -1,7 +1,9 @@
 
 
+import statistics
 from  rest_framework import status
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from  rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from pomodoros.api.serializers.pomodoro_serializers import PomodoroTimeSerializer
@@ -16,6 +18,23 @@ class PomodorosViewSet(viewsets.ModelViewSet):
         if pk is None:
             return self.get_serializer().Meta.model.objects.filter(state=True)
         return self.get_serializer().Meta.model.objects.filter(state=True).first()
+
+    @action(detail=False, methods=["GET"], url_name="pomodoro_user")
+    def pomodoroByUser(self,*args, **kwargs):
+        userId= self.request.query_params.get('userId')
+        data= self.get_serializer().Meta.model.objects.filter(state=True,idUser=userId, completed=True)
+        pomodoro_serializer= PomodoroTimeSerializer(data, many=True)
+
+        return Response(pomodoro_serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["GET"], url_name="pomodoro_statistics_user")
+    def pomodoroStatisticsByUser(self,*args, **kwargs):
+        userId= self.request.query_params.get('userId')
+        pomodoros= self.get_serializer().Meta.model.objects.filter(state=True,idUser=userId, completed=True, typeOf="1")
+        shortBreaks= self.get_serializer().Meta.model.objects.filter(state=True,idUser=userId, completed=True, typeOf="2")
+        longBreaks= self.get_serializer().Meta.model.objects.filter(state=True,idUser=userId, completed=True, typeOf="3")
+        
+        return Response({"pomodoros":len(pomodoros), "shortBreaks":len(shortBreaks), "longBreaks":len(longBreaks)  }, status=status.HTTP_200_OK)
     
     def create(self,request):
     
@@ -41,8 +60,9 @@ class PomodorosViewSet(viewsets.ModelViewSet):
             pomodoro.state=False
             pomodoro.save()
             return Response({'message':'Pomodoro eliminado'}, status=status.HTTP_200_OK)
-        return Response({'message':'Pomodoro no fue eliminado'},status=status.HTTP_400_BAD_REQUEST) 
-    
+        return Response({'message':'Pomodoro no fue eliminado'},status=status.HTTP_400_BAD_REQUEST)
+
+   
 
 # class PomodorosListAPIView(GeneralListAPIView):
 #     serializer_class=PomodoroTimeSerializer
